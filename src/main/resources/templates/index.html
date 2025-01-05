@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/list.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <title>图书管理系统</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="../images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <div class="col-lg-2 col-md-3 col-sm-3 col-xs-4  pull-right">
+        <form method="get" action="/" class="input-group">
+            <label for="bookName"></label>
+            <input class="form-control" type="text" id="bookName" name="bookName" placeholder="搜索书名..." th:value="${bookName}"/>
+            <button type="submit" class="input-group-addon" style="color: #FFFFFF;background-color: #2EA7E0;">搜索</button>
+        </form>
+    </div>
+    <ul>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+    <div class="bookContainer">
+        <h2>图书列表</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>编号</th>
+                <th>书名</th>
+                <th>出版日期</th>
+                <th>出版社</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${bookPage.content}">
+                <td th:text="${book.bookId}"></td>
+                <td th:text="${book.bookName}"></td>
+                <td th:text="${book.publicationDate}"></td>
+                <td th:text="${book.publisher}"></td>
+                <td th:text="${book.status}"></td>
+                <td>
+                    <div class="op">
+                        <a th:attr="data-id=${book.bookId}, data-status=${book.status}" onclick="borrowBook(this)">借阅</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <button th:if="${bookPage.hasPrevious()}"
+                    th:onclick="'window.location.href=\'?page=' + (${bookPage.number} - 1) + '&size=' + ${bookPage.size} + '\''">上一页</button>
+            <button th:if="${bookPage.hasNext()}"
+                    th:onclick="'window.location.href=\'?page=' + (${bookPage.number} + 1) + '&size=' + ${bookPage.size} + '\''">下一页</button>
+        </div>
+    </div>
+</main>
+</body>
+<script>
+    function borrowBook(element) {
+        const bookId = parseInt(element.getAttribute('data-id'), 10);
+        const status = element.getAttribute('data-status');
+
+        if (status === '可借阅') {
+            fetch('/borrow', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ bookId: bookId })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert('借阅成功！');
+                        location.reload(); // 刷新页面更新状态
+                    } else {
+                        alert('借阅失败：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('借阅失败，请稍后再试！');
+                });
+        } else {
+            alert('该书不可借阅！');
+        }
+    }
+</script>
+</html>

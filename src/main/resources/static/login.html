@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+</head>
+
+<body>
+<div class="container-login">
+    <div class="container-pic">
+        <img src="images/computer.png" width="350px">
+    </div>
+    <div class="login-dialog">
+        <h3>登陆</h3>
+        <div class="row">
+            <span>用户名</span>
+            <input type="text" name="Name" id="Name" class="form-control">
+        </div>
+        <div class="row">
+            <span>密码</span>
+            <input type="password" name="password" id="password" class="form-control">
+        </div>
+        <div class="register">
+            没有账号？<a href="register.html">点击注册</a>
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-info btn-lg" onclick="login()">登录</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script>
+    function login() {
+        let name = document.getElementById('Name').value;
+        let password = document.getElementById('password').value;
+
+        fetch('/reader/login', { // 确保地址端口正确
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, password })
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('登录失败');
+                }
+            })
+            .then(data => {
+                alert(data.msg);  // 显示成功或失败信息
+                if (data.code === "0") {
+                    window.location.href = '/';
+                }
+                // 在这里处理登录成功后的操作，例如页面跳转
+            })
+            .catch(error => console.error(error));
+    }
+
+</script>
+</body>
+
+</html>

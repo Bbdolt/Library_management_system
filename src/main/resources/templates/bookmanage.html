@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/list.css">
+
+    <title>图书管理系统</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="../images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <ul>
+        <li><a href="/usermanage">用户管理</a></li>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+    <div class="bookContainer">
+        <h2>管理图书</h2>
+        <a href="/addbook.html" class="addbook">添加图书</a>
+        <table>
+            <thead>
+            <tr>
+                <th>图书编号</th>
+                <th>图书名称</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="book : ${bookPage.content}">
+                <td th:text="${book.bookId}">1</td>
+                <td th:text="${book.bookName}">test</td>
+                <td th:text="${book.status}">可借阅</td>
+                <td>
+                    <div class="op">
+                        <a th:attr="data-id=${book.bookId}" onclick="vim(this)">编辑</a>
+                        <a th:attr="data-id=${book.bookId}" class="delete" onclick="del(this)">删除</a>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <button th:if="${bookPage.hasPrevious()}"
+                    th:onclick="'window.location.href=\'?page=' + (${bookPage.number} - 1) + '&size=' + ${bookPage.size} + '\''">上一页</button>
+            <button th:if="${bookPage.hasNext()}"
+                    th:onclick="'window.location.href=\'?page=' + (${bookPage.number} + 1) + '&size=' + ${bookPage.size} + '\''">下一页</button>
+        </div>
+    </div>
+</main>
+</body>
+<script>
+    function vim(element) {
+        const bookId = parseInt(element.getAttribute('data-id'), 10);
+        window.location.href = `/vimbook?bookId=${bookId}`;
+    }
+
+    function del(element){
+        const bookId = parseInt(element.getAttribute('data-id'), 10);
+        fetch('/deletebook', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({bookId: bookId})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === "0") {
+                    alert(data.data);
+                    location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+    }
+</script>
+
+</html>

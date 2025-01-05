@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <style>
+        .login-dialog {
+            width: 400px;
+            height: 500px;
+        }
+        .container-login{
+            width: 750px;
+            height: 500px;
+        }
+    </style>
+    <title>注册</title>
+</head>
+<body>
+
+    <div class="container-login">
+        <div class="container-pic">
+            <img src="images/computer.png" width="350px" alt="">
+        </div>
+        <div class="login-dialog">
+            <h3>注册</h3>
+            <div class="row">
+                <label for="Name">用户名</label>
+                <input type="text" name="Name" id="Name" class="form-control">
+            </div>
+            <div class="row">
+                <label for="age">年龄</label>
+                <input type="text" name="age" id="age" class="form-control">
+            </div>
+            <div class="row">
+                <label for="sex">性别</label>
+                <input type="text" name="sex" id="sex" class="form-control">
+            </div>
+            <div class="row">
+                <label for="address">地址</label>
+                <input type="text" name="address" id="address" class="form-control">
+            </div>
+            <div class="row">
+                <label for="password">密码</label>
+                <input type="password" name="password" id="password" class="form-control">
+            </div>
+            <div class="row">
+                <label for="confirmPassword">确认密码：</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" required>
+              </div>
+            <div class="row">
+                <button type="button" class="btn btn-info btn-lg" onclick="register()">注册</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/jquery.min.js"></script>
+    <script>
+        // 密码复杂性验证函数
+        function isStrongPassword(password) {
+            // 正则：密码至少8位，包含大写字母、小写字母、数字和特殊字符
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+            return passwordRegex.test(password);
+        }
+        function register() {
+            let password = document.getElementById('password').value;
+            let confirmPassword = document.getElementById('confirmPassword').value;
+            if (password !== confirmPassword) {
+                alert('两次密码不一致');
+                return;
+            }
+            // 验证密码复杂性
+            if (!isStrongPassword(password)) {
+                alert('密码过于简单！必须包含至少8个字符，包含大写字母、小写字母、数字和特殊字符。');
+                return;
+            }
+
+            let name = document.getElementById('Name').value;
+            let age = document.getElementById('age').value;
+            let sex = document.getElementById('sex').value;
+            let address = document.getElementById('address').value;
+
+            fetch('http://localhost:8081/reader/register', { // 确保地址端口正确
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name, password, age, sex, address }),
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('注册失败');
+                    }
+                })
+                .then(data => {
+                    alert(data.msg);  // 显示成功或失败信息
+                    if (data.code === "0") {
+                        window.location.href = 'login.html';
+                    }
+                    // 在这里处理登录成功后的操作，例如页面跳转
+                })
+                .catch(error => console.error(error));
+        }
+    </script>
+</body>
+</html>

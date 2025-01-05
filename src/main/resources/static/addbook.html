@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/list.css">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <style>
+        .login-dialog {
+            width: 350px;
+            height: 350px;
+        }
+    </style>
+    <title>添加图书</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <ul>
+        <li><a href="/bookmanage">图书管理</a></li>
+        <li><a href="/usermanage">用户管理</a></li>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+    <div class="container-login">
+        <div class="container-pic">
+            <img src="images/computer.png" width="350px" alt="">
+        </div>
+        <div class="login-dialog">
+            <h3>添加图书</h3>
+            <div class="row">
+                <span>图书名称</span>
+                <input type="text" name="Name" id="bookName" class="form-control">
+            </div>
+            <div class="row">
+                <span>出版日期</span>
+                <input type="date" name="publicationDate" id="publicationDate" class="form-control">
+            </div>
+            <div class="row">
+                <span>出版社</span>
+                <input type="text" name="Name" id="publisher" class="form-control">
+            </div>
+            <div class="row">
+                <span>书架</span>
+                <input type="text" name="Name" id="bookrackId" class="form-control">
+            </div>
+            <div class="row">
+                <button type="button" class="btn btn-info btn-lg" onclick="send()">发送</button>
+            </div>
+        </div>
+    </div>
+
+</main>
+</body>
+<script>
+    function send(){
+        fetch('/editbook/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                'bookName': document.querySelector('#bookName').value,
+                'publicationDate': document.querySelector('#publicationDate').value,  // 发送日期
+                'publisher': document.querySelector('#publisher').value,
+                'bookrackId': document.querySelector('#bookrackId').value
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === "0") {
+                    alert(data.data);
+                    window.location.href = "/bookmanage";
+                }else{
+                    alert(data.data);
+                }
+
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+</script>
+</html>

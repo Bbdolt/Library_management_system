@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/login.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/list.css">
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <style>
+        .login-dialog {
+            width: 400px;
+            height: 500px;
+        }
+        .container-login{
+            width: 750px;
+            height: 500px;
+        }
+        header {
+            position: absolute;
+            top:0;
+        }
+    </style>
+    <title>修改个人信息</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <ul>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+<div class="container-login">
+    <div class="container-pic">
+        <img src="images/computer.png" width="350px" alt="">
+    </div>
+    <div class="login-dialog">
+        <h3>修改个人信息</h3>
+        <div class="row">
+            <label for="Name">用户名</label>
+            <input type="text" name="Name" id="Name" class="form-control">
+        </div>
+        <div class="row">
+            <label for="age">年龄</label>
+            <input type="text" name="age" id="age" class="form-control">
+        </div>
+        <div class="row">
+            <label for="sex">性别</label>
+            <input type="text" name="sex" id="sex" class="form-control">
+        </div>
+        <div class="row">
+            <label for="address">地址</label>
+            <input type="text" name="address" id="address" class="form-control">
+        </div>
+        <div class="row">
+            <label for="password">密码</label>
+            <input type="password" name="password" id="password" class="form-control">
+        </div>
+        <div class="row">
+            <label for="confirmPassword">确认密码：</label>
+            <input type="password" id="confirmPassword" name="confirmPassword" required>
+        </div>
+        <div class="row">
+            <button type="button" class="btn btn-info btn-lg" onclick="update()">修改个人信息</button>
+        </div>
+    </div>
+</div>
+</main>
+<script src="js/jquery.min.js"></script>
+<script>
+    function update() {
+        let password = document.getElementById('password').value;
+        let confirmPassword = document.getElementById('confirmPassword').value;
+        if (password !== confirmPassword) {
+            alert('两次密码不一致');
+            return;
+        }
+        let name = document.getElementById('Name').value;
+        let age = document.getElementById('age').value;
+        let sex = document.getElementById('sex').value;
+        let address = document.getElementById('address').value;
+
+        fetch('/update', { // 确保地址端口正确
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name, password, age, sex, address }),
+        })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    throw new Error('更新失败');
+                }
+            })
+            .then(data => {
+                alert(data.data);  // 显示成功或失败信息
+                if (data.code === "0") {
+                    window.location.href = '/person';
+                }
+                // 在这里处理登录成功后的操作，例如页面跳转
+            })
+            .catch(error => console.error(error));
+    }
+</script>
+</body>
+</html>

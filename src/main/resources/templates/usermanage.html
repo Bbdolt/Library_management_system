@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN" xmlns:th="http://www.w3.org/1999/xhtml" xmlns="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/list.css">
+    <title>图书管理系统</title>
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="../images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <ul>
+        <li><a href="/bookmanage">图书管理</a></li>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+    <div class="bookContainer">
+        <h2>黑名单管理</h2>
+        <table>
+            <thead>
+            <tr>
+                <th>用户ID</th>
+                <th>用户名</th>
+                <th>封禁原因</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- 检查blacklistsPage.content是否为空 -->
+            <tr th:each="black : ${blacklistsPage.content}">
+                <td th:text="${black.borrowBookId}"></td>
+                <td th:text="${black.name}"></td>
+                <td th:text="${black.reason}"></td>
+                <td>
+                    <div class="op">
+                        <a th:attr="data-id=${black.borrowBookId}" onclick="cl(this)">解封</a>
+                    </div>
+                </td>
+            </tr>
+            <!-- 如果blacklistsPage.content为空，显示无数据提示 -->
+            <tr th:if="${#lists.isEmpty(blacklistsPage.content)}">
+                <td colspan="4">暂无黑名单数据</td>
+            </tr>
+            </tbody>
+        </table>
+        <div>
+            <button th:if="${blacklistsPage.hasPrevious()}"
+                    th:onclick="'window.location.href=\'/usermanage?page=' + (${blacklistsPage.number} - 1) + '&size=' + ${blacklistsPage.size} + '\''">
+                上一页
+            </button>
+            <button th:if="${blacklistsPage.hasNext()}"
+                    th:onclick="'window.location.href=\'/usermanage?page=' + (${blacklistsPage.number} + 1) + '&size=' + ${blacklistsPage.size} + '\''">
+                下一页
+            </button>
+        </div>
+    </div>
+</main>
+</body>
+<script>
+    function cl(element) {
+        const id = parseInt(element.getAttribute('data-id'),10);
+        fetch('/usermanage/clear', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ id: id })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.code === "0") {
+                    alert(data.data);
+                    location.reload();  // 解封后刷新页面
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</html>

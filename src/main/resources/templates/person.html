@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>个人中心</title>
+    <link rel="stylesheet" href="../css/list.css">
+    <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header>
+    <h1><a href="/">图书管理系统</a></h1>
+    <img src="../images/logo.png" alt="Logo" style="width: 80px; height: 80px; margin-left: 10px;">
+    <ul>
+        <li><a href="/person">个人中心</a></li>
+    </ul>
+</header>
+<main>
+    <div class="container">
+        <div class="bookContainer">
+            <h2>图书列表</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>图书编号</th>
+                    <th>借阅日期</th>
+                    <th>归还日期</th>
+                    <th>操作</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="borrow : ${borrowPage}">
+                    <td th:text="${borrow.bookId}">图书编号</td>
+                    <td th:text="${borrow.borrowDate}">借阅日期</td>
+                    <td th:text="${borrow.returnDate}">归还日期</td>
+                    <td>
+                        <div class="op">
+                            <a th:attr="book-id=${borrow.bookId}" onclick="borrowBook(this)">还书</a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <div>
+                <button th:if="${borrowPage.hasPrevious()}"
+                        th:onclick="'window.location.href=\'/person?page=' + (${borrowPage.number} - 1) + '&size=' + ${borrowPage.size} + '\''">
+                    上一页
+                </button>
+                <button th:if="${borrowPage.hasNext()}"
+                        th:onclick="'window.location.href=\'/person?page=' + (${borrowPage.number} + 1) + '&size=' + ${borrowPage.size} + '\''">
+                    下一页
+                </button>
+            </div>
+        </div>
+
+        <div class="readerInfo">
+            <h2>读者信息</h2>
+            <p><strong>姓名：</strong><span th:text="${reader.name}"></span></p>
+            <p><strong>年龄：</strong><span th:text="${reader.age}"></span></p>
+            <p><strong>性别：</strong><span th:text="${reader.sex}"></span></p>
+            <p><strong>地址：</strong><span th:text="${reader.address}"></span></p>
+            <p><strong>角色：</strong><span th:text="${reader.role == 1 ? '普通用户' : '管理员'}"></span></p>
+            <div>
+                <a href="/updateperson.html" class="user-button">修改个人信息</a>
+            </div>
+            <div th:if="${reader.role != 1}">
+                <a href="/bookmanage" class="admin-button">进入管理员页面</a>
+            </div>
+            <div>
+                <a class="logout-button" onclick="logout()">退出登录</a>
+            </div>
+        </div>
+    </div>
+</main>
+</body>
+<script>
+    function borrowBook(element) {
+        const bookId = parseInt(element.getAttribute('book-id'), 10);
+        fetch('/return', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({bookId: bookId})
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.code === "0"){
+                    alert(data.data);
+                    location.reload();
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    function logout() {
+        fetch('/reader/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if(data.code === "0"){
+                    window.location.href = '/login.html';
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+</script>
+</html>
